@@ -1,0 +1,13 @@
+.card__photo {
+  width: 282px;
+  height: 282px;
+  object-fit: cover;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 25px;
+  background-color: black;
+  color: white;
+}
+
+.card__photo:hover {
+  cursor: pointer;
+}

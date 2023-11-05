@@ -1,0 +1,8 @@
+.card__figcaption {
+  margin: 0 auto;
+  width: calc(100% - 40px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 25px;
+}
