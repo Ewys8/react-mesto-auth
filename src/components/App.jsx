@@ -9,6 +9,7 @@ import CurrentUserContext from "../contexts/CurrentUserContext.js";
 import EditProfilePopup from "./EditProfilePopup/EditProfilePopup.jsx";
 import EditAvatarPopup from "./EditAvatarPopup/EditAvatarPopup.jsx";
 import AddPlacePopup from "./AddPlacePopup/AddPlacePopup.jsx";
+import ProtectedRoute from "./ProtectedRoute/ProtectedRoute.jsx";
 import api from "../utils/api.js";
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
@@ -31,6 +32,7 @@ function App() {
   const [selectedCardID, setSelectedCardID] = useState("");
   //стейты состояния
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   function closeAllPopups() {
     setIsEditAvatarPopupOpen(false);
@@ -165,24 +167,12 @@ function App() {
         <Header />
 
         <Routes>
-            <Route
-              path='/signin'
-              element={
-                <Login />
-              }
-            />
 
             <Route
-              path='/signup'
+              path='/react-mesto-auth'
               element={
-                <Register/>
-              }
-            />
-
-            <Route
-              path='/'
-              element={
-                <Main
+                <ProtectedRoute
+                  element={Main}
                   onEditProfile={handleEditProfileClick}
                   onEditAvatar={handleEditAvatarClick}
                   onAddPlace={handleAddPlaceClick}
@@ -190,13 +180,25 @@ function App() {
                   onDelete={handleDeletePopupClick}
                   onCardLike={handleCardLike}
                   cards={cards}
+                  isLoggedIn={isLoggedIn}
                 />
               }
             />
-            
-              
+
+            <Route
+              path='/sign-in'
+              element={
+                <Login />
+              }
+            />
+
+            <Route
+              path='/sign-up'
+              element={
+                <Register/>
+              }
+            />
         </Routes>
-        
           
         <Footer />
 
