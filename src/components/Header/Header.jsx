@@ -1,10 +1,41 @@
 import logo from '../../images/logo.svg'
-export default function Header() {
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+
+export default function Header({ userEmail, onSignOut }) {
+
+    const location = useLocation();
+    
     return (
         <header className="header">
-            <img src={logo}
+            <img 
+                src={logo}
                 alt="лого" 
-                className="logo" />
+                className="logo" 
+            />
+
+            {location.pathname === '/sign-in' && (
+                <Link className='header__link' to={'/sign-up'}>
+                    Регистрация
+                </Link>
+            )}
+
+            {location.pathname === '/sign-up' && (
+                <Link className='header__link' to={'/sign-in'}>
+                    Вход
+                </Link>
+            )}
+
+            {location.pathname === '/' && (
+                <>
+                <div className="header__container">
+                    <p className="header__email">{userEmail}</p>
+                    <Link className='header__link' to={'/sign-in'} onClick={onSignOut}>
+                        Выйти
+                    </Link>
+                </div>
+                </>
+            )}
         </header>
     )
 }

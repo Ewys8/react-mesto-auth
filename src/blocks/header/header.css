@@ -4,6 +4,9 @@
   box-sizing: border-box;
   border-bottom: 1px solid rgba(84, 84, 84, .7);
   margin: 0 auto 40px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 @media (max-width: 930px) {

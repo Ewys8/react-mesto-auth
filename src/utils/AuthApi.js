@@ -1,46 +1,50 @@
+import { optionsAuthApi } from "./utils";
+
 class AuthApi {
-  constructor(baseUrl) {
-    this._baseUrl = baseUrl;
-  }
-  // проверяет есть ли ошибка
-  _checkError(res) {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Статус ошибки: ${res.status}`);
-  }
-  // регистрация пользователя
-  registerUser(email, password) {
-    return fetch(`${this._baseUrl}/signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    }).then((res) => this._checkError(res));
+  constructor({ baseUrl, headers }) {
+    this.baseUrl = baseUrl;
+    this.headers = headers;
   }
 
-  // вход пользователя
-  loginUser(email, password) {
-    return fetch(`${this._baseUrl}/signin`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    }).then((res) => this._checkError(res));
+  checkResponse(res) {
+    return res.ok ? res.json() : Promise.reject(`Ошибка ${res.status}`);
   }
 
-  // проверяем токен
+  signup({ email, password }) {
+    return this._authApiRequest(`${this.baseUrl}/signup`, {
+      method: 'POST',
+      headers: this.headers,
+      body: JSON.stringify({
+        password: password,
+        email: email,
+      }),
+    });
+  }
+
+  signin({ email, password }) {
+    return this._authApiRequest(`${this.baseUrl}/signin`, {
+      method: 'POST',
+      headers: this.headers,
+      body: JSON.stringify({
+        password: password,
+        email: email,
+      }),
+    });
+  }
+
+  async _authApiRequest(url, options) {
+    const res = await fetch(url, options);
+    return this.checkResponse(res);
+  }
+
   checkToken(token) {
-    return fetch(`${this._baseUrl}/users/me`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    }).then((res) => this._checkError(res));
+    return this._authApiRequest(`${this.baseUrl}/users/me`, {
+      headers: { ...this.headers, Authorization: `Bearer ${token}` },
+    });
   }
+
+
 }
-const authApi = new AuthApi("https://auth.nomoreparties.co");
+const authApi = new AuthApi(optionsAuthApi);
+
 export default authApi;

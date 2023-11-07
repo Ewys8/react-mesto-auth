@@ -34,6 +34,13 @@ const config = {
     }
     }
 
+    const optionsAuthApi = {
+      baseUrl: `https://auth.nomoreparties.co`,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }
+
     export { config, userInfoEditButton, userInfoEditForm,
     popupAddCardOpenButton, cardAddForm, templateSelector, gallery, configProfile,
-    popupAvatarEditButton, userAvatarEditForm, optionsApi };
+    popupAvatarEditButton, userAvatarEditForm, optionsApi, optionsAuthApi };

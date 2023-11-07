@@ -10,3 +10,9 @@
   margin-bottom: 15px;
   padding: 0;
 }
+
+.auth__submit:hover {
+  opacity: 0.85;
+  cursor: pointer;
+}
+

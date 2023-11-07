@@ -1,9 +1,36 @@
-import { Link, Redirect } from "react-router-dom";
-export default function Register ({}) {
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link  } from "react-router-dom";
+
+export default function Register ({ onRegister, isLoggedIn }) {
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('')
+
+    
+    function handleEmailChange(evt) {
+        setEmail(evt.target.value);
+    }
+
+    function handlePasswordChange(evt) {
+        setPassword(evt.target.value);
+    }
+
+    function handleSubmit(evt) {
+        evt.preventDefault();
+        onRegister(email, password);
+    }
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isLoggedIn) {
+        navigate('/');
+        }
+    }, [isLoggedIn, navigate]);
 
     return (
         <form
-        //onSubmit={handleSubmit}
+        onSubmit={handleSubmit}
         className="auth__form"
         noValidate
         name="register"
@@ -14,9 +41,9 @@ export default function Register ({}) {
                 name="email"
                 type="email"
                 placeholder="Email"
-                //value={email}
+                value={email}
                 className="auth__input"
-                //onChange={handleEmailChange}
+                onChange={handleEmailChange}
                 autoComplete="off"
             />
 
@@ -25,9 +52,9 @@ export default function Register ({}) {
                 name="password"
                 type="password"
                 placeholder="Пароль"
-                //value={password}
+                value={password}
                 className="auth__input"
-                //onChange={handlePasswordChange}
+                onChange={handlePasswordChange}
                 autoComplete="off"
             />
             <button type="submit" className="auth__submit">

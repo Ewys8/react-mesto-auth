@@ -9,8 +9,12 @@ import CurrentUserContext from "../contexts/CurrentUserContext.js";
 import EditProfilePopup from "./EditProfilePopup/EditProfilePopup.jsx";
 import EditAvatarPopup from "./EditAvatarPopup/EditAvatarPopup.jsx";
 import AddPlacePopup from "./AddPlacePopup/AddPlacePopup.jsx";
+import InfoTooltip from "./InfoTooltip/InfoTooltip.jsx";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute.jsx";
 import api from "../utils/api.js";
+import authApi from "../utils/AuthApi.js";
+import success from '../images/success.svg';
+import failure from '../images/failure.svg';
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
@@ -21,8 +25,10 @@ function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
+  const [message, setMessage] = useState({ path: '', text: '' });
 
   //стейт контекста
   const [currentUser, setCurrentUser] = useState({});
@@ -33,6 +39,9 @@ function App() {
   //стейты состояния
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+
+  const navigate = useNavigate();
 
   function closeAllPopups() {
     setIsEditAvatarPopupOpen(false);
@@ -40,6 +49,7 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsImagePopupOpen(false);
     setIsDeletePopupOpen(false);
+    setIsInfoTooltipOpen(false);
   }
 
   function handleEditAvatarClick() {
@@ -67,8 +77,7 @@ function App() {
   function handleCardDelete(evt) {
     evt.preventDefault();
     setIsLoading(true);
-    api
-      .deleteCard(selectedCardID)
+    api.deleteCard(selectedCardID)
       .then(() => {
         setCards(
           cards.filter((card) => {
@@ -98,8 +107,7 @@ function App() {
 
   function handleCardLike(card) {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
-    api
-      .changeLikeCardStatus(card._id, !isLiked)
+    api.changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
         setCards((state) =>
           state.map((c) => (c._id === card._id ? newCard : c))
@@ -112,8 +120,7 @@ function App() {
 
   function handleUpdateUser(userData, reset) {
     setIsLoading(true);
-    api
-      .editUserData(userData)
+    api.editUserData(userData)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -129,8 +136,7 @@ function App() {
 
   function handleAddPlaceSubmit(userData, reset) {
     setIsLoading(true);
-    api
-      .createCard(userData)
+    api.createCard(userData)
       .then((res) => {
         setCards([res, ...cards]);
         closeAllPopups();
@@ -146,8 +152,7 @@ function App() {
 
   function handleUpdateAvatar(userData, reset) {
     setIsLoading(true);
-    api
-      .editUserAvatar(userData)
+    api.editUserAvatar(userData)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
@@ -161,15 +166,60 @@ function App() {
       });
   }
 
+  function handleRegister(email, password) {
+    authApi.signup({ email, password })
+      .then((res) => {
+        setUserEmail(res.data.email);
+        setMessage({ path: success, text: 'Вы успешно зарегистрировались!' });
+        navigate('/sign-in');
+      })
+      .catch(() =>
+        setMessage({ path: failure, text: 'Что-то пошло не так! Попробуйте ещё раз.' }),
+      )
+      .finally(() => {
+        setIsInfoTooltipOpen(true);
+      });
+  }
+
+  function handleLogin(email, password) {
+    authApi.signin({ email, password })
+      .then((res) => localStorage.setItem('JWT', res.token))
+      .then(() => setIsLoggedIn(true))
+      .catch(console.log);
+  }
+
+  function handleSingOut() {
+    localStorage.removeItem('JWT');
+    setIsLoggedIn(false);
+  }
+
+  useEffect(() => {
+    async function checkUserAuth() {
+      const jwt = localStorage.getItem("jwt");
+      if (jwt) return;
+      try {
+        const res = await authApi.checkToken(localStorage.getItem('JWT'));
+        if (res.data) {
+          setUserEmail(res.data.email);
+          navigate("/");
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        setIsLoggedIn(false);
+        console.log(error);
+      }
+    }
+    checkUserAuth();
+  }, []);
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page__container">
-        <Header />
-
+        <Header userEmail={userEmail} onSignOut={handleSingOut}/>
+        
         <Routes>
-
             <Route
-              path='/react-mesto-auth'
+              path='/'
               element={
                 <ProtectedRoute
                   element={Main}
@@ -188,19 +238,32 @@ function App() {
             <Route
               path='/sign-in'
               element={
-                <Login />
+                <Login 
+                  onLogin={handleLogin} 
+                  isLoggedIn={isLoggedIn}
+                />
               }
             />
 
             <Route
               path='/sign-up'
               element={
-                <Register/>
+                <Register 
+                  onRegister={handleRegister} 
+                  isLoggedIn={isLoggedIn}
+                />
               }
             />
         </Routes>
           
         <Footer />
+
+        <InfoTooltip
+          isOpen={isInfoTooltipOpen}
+          onClose={closeAllPopups}
+          title={message.text}
+          path={message.path}
+        />
 
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
