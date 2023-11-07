@@ -205,6 +205,7 @@ function App() {
           setIsLoggedIn(true);
         }
       } catch (error) {
+        navigate("/sign-in");
         setIsLoggedIn(false);
         console.log(error);
       }
