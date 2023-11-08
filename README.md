@@ -1,4 +1,3 @@
-![Mesto](https://ewys8.github.io/react-mesto-auth/static/media/logo.bbe2a6eafac19c3d031c272c424875ca.svg)
 # Проект "React-mesto-auth"
 ## Описание :mag_right:
     "React-mesto-auth" это интерактивное одностраничное приложение, разработанное с использованием библиотеки React, в котороом пользователи могут добавлять выкладывать свои карточки с изображениями.
