@@ -169,7 +169,6 @@ function App() {
   function handleRegister(email, password) {
     authApi.signup({ email, password })
       .then((res) => {
-        //setUserEmail(res.data.email);
         setMessage({ path: success, text: 'Вы успешно зарегистрировались!' });
         navigate('/sign-in');
       })
