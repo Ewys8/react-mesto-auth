@@ -169,7 +169,7 @@ function App() {
   function handleRegister(email, password) {
     authApi.signup({ email, password })
       .then((res) => {
-        setUserEmail(res.data.email);
+        //setUserEmail(res.data.email);
         setMessage({ path: success, text: 'Вы успешно зарегистрировались!' });
         navigate('/sign-in');
       })
@@ -183,9 +183,17 @@ function App() {
 
   function handleLogin(email, password) {
     authApi.signin({ email, password })
-      .then((res) => localStorage.setItem('JWT', res.token))
-      .then(() => setIsLoggedIn(true))
-      .catch(console.log);
+      .then((data) => {
+        if (data.token) {
+          setUserEmail(email);
+          setIsLoggedIn(true); 
+          localStorage.setItem("JWT", data.token);
+          navigate("/"); 
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   function handleSingOut() {
@@ -195,8 +203,6 @@ function App() {
 
   useEffect(() => {
     async function checkUserAuth() {
-      const jwt = localStorage.getItem("jwt");
-      if (jwt) return;
       try {
         const res = await authApi.checkToken(localStorage.getItem('JWT'));
         if (res.data) {
